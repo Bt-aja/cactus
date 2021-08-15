@@ -26,13 +26,18 @@ TARGET_SCREEN_WIDTH := 720
 TARGET_SCREEN_HEIGHT := 1440
 
 # Architecture
-TARGET_ARCH := arm
+TARGET_ARCH := arm64
 TARGET_ARCH_VARIANT := armv8-a
-TARGET_CPU_ABI := armeabi-v7a
-TARGET_CPU_ABI2 := armeabi
+TARGET_CPU_ABI := arm64-v8a
 TARGET_CPU_VARIANT := generic
 TARGET_CPU_VARIANT_RUNTIME := cortex-a53
-TARGET_USES_64_BIT_BINDER := true
+
+TARGET_2ND_ARCH := arm
+TARGET_2ND_ARCH_VARIANT := armv8-a
+TARGET_2ND_CPU_ABI := armeabi-v7a
+TARGET_2ND_CPU_ABI2 := armeabi
+TARGET_2ND_CPU_VARIANT := generic
+TARGET_2ND_CPU_VARIANT_RUNTIME := cortex-a53
 
 # Debugging
 TARGET_USES_LOGD := true
@@ -50,16 +55,20 @@ BOARD_BUILD_SYSTEM_ROOT_IMAGE := true
 TARGET_COPY_OUT_VENDOR := vendor
 
 # Kernel
-BOARD_KERNEL_BASE := 0x40000000
-BOARD_KERNEL_PAGESIZE := 2048
-BOARD_RAMDISK_OFFSET := 0x11b00000
-BOARD_KERNEL_TAGS_OFFSET := 0x07880000
-BOARD_BOOTIMG_HEADER_VERSION := 1
-BOARD_KERNEL_CMDLINE := bootopt=64S3,32S1,32S1 androidboot.selinux=permissive
-BOARD_MKBOOTIMG_ARGS := --ramdisk_offset $(BOARD_RAMDISK_OFFSET) --tags_offset $(BOARD_KERNEL_TAGS_OFFSET) --header_version $(BOARD_BOOTIMG_HEADER_VERSION)
-TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/zImage
-BOARD_INCLUDE_RECOVERY_DTBO := true
-BOARD_PREBUILT_DTBOIMAGE := $(DEVICE_PATH)/prebuilt/dtbo.img
+BOARD_KERNEL_CMDLINE := bootopt=64S3,32N2,64N2 androidboot.selinux=permissive
+BOARD_KERNEL_IMAGE_NAME := Image.gz-dtb
+BOARD_MKBOOTIMG_ARGS := \
+    --board $(TARGET_BOARD_PLATFORM) \
+    --ramdisk_offset 0x11A88000 \
+    --second_offset 0xE88000 \
+    --tags_offset 0x7808000 \
+    --header_version 1 \
+    --base 0x40078000 \
+    --pagesize 2048
+
+TARGET_PREBUILT_KERNEL := $(DEVICE_PATH)/prebuilt/Image.gz-dtb
+TARGET_KERNEL_SOURCE := kernel/xiaomi/certus
+TARGET_KERNEL_CONFIG := certus_defconfig
 
 # Recovery
 RECOVERY_SDCARD_ON_DATA := true
@@ -78,12 +87,23 @@ TW_USE_MODEL_HARDWARE_ID_FOR_DEVICE_ID := true
 TW_EXCLUDE_TWRPAPP := true
 TW_SCREEN_BLANK_ON_BOOT := true
 TW_FORCE_USE_BUSYBOX := true
+TW_INCLUDE_NTFS_3G := true
+
+TW_RECOVERY_ADDITIONAL_RELINK_FILES += \
+    $(TARGET_OUT_VENDOR_SHARED_LIBRARIES)/hw/android.hardware.keymaster@3.0-impl.so \
+    $(TARGET_OUT_VENDOR_EXECUTABLES)/hw/android.hardware.keymaster@3.0-service \
+    $(TARGET_OUT_VENDOR_SHARED_LIBRARIES)/libkeymaster3device.so \
+    $(TARGET_OUT_SHARED_LIBRARIES)/libpuresoftkeymasterdevice.so
 
 # Haxx: Anti-Rollback
 VENDOR_SECURITY_PATCH := 2099-12-31
 PLATFORM_VERSION := 16.1.0
 
 # PBRP Build Flags
-PB_DISABLE_DEFAULT_DM_VERITY := true
-PB_DISABLE_DEFAULT_TREBLE_COMP := true
+#PB_DISABLE_DEFAULT_DM_VERITY := true
+#PB_DISABLE_DEFAULT_TREBLE_COMP := true
 #PB_TORCH_PATH := /sys/class/leds/flashlight
+
+# Init
+TARGET_INIT_VENDOR_LIB := libinit_certus
+TARGET_RECOVERY_DEVICE_MODULES := libinit_certus
