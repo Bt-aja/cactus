@@ -15,11 +15,12 @@
 #
 
 # Inherit from our custom product configuration
+$(call inherit-product, $(SRC_TARGET_DIR)/product/core_64_bit.mk)
 $(call inherit-product, $(SRC_TARGET_DIR)/product/full_base_telephony.mk)
 $(call inherit-product, vendor/pb/config/common.mk)
 
 PRODUCT_DEVICE := cactus
 PRODUCT_NAME := omni_cactus
 PRODUCT_BRAND := xiaomi
-PRODUCT_MODEL := Redmi 6A
+PRODUCT_MODEL := Redmi 6/6A
 PRODUCT_MANUFACTURER := Xiaomi
